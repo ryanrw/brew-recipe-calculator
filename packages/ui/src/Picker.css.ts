@@ -2,6 +2,8 @@
  * stays framework-pure (no styled-components, no CSS modules tooling). */
 import type { CSSProperties } from "react";
 
+const ITEM_HEIGHT = 40;
+
 export const pickerWrapper: CSSProperties = {
   position: "relative",
   height: 160,
@@ -11,6 +13,11 @@ export const pickerWrapper: CSSProperties = {
   background: "#fafafa",
   touchAction: "none",
   userSelect: "none",
+  /* The 3D drum effect: the scroller is a vertical cylinder; items are
+   * rotated/translated/scaled around the x-axis based on their distance
+   * from the center band. */
+  perspective: 800,
+  perspectiveOrigin: "50% 50%",
 };
 
 export const pickerScroller: CSSProperties = {
@@ -18,10 +25,14 @@ export const pickerScroller: CSSProperties = {
   overflowY: "auto",
   scrollSnapType: "y mandatory",
   WebkitOverflowScrolling: "touch",
+  /* Children are laid out on a cylinder, not a flat plane. */
+  transformStyle: "preserve-3d",
+  position: "relative",
+  zIndex: 1,
 };
 
 export const pickerItem: CSSProperties = {
-  height: 40,
+  height: ITEM_HEIGHT,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -29,6 +40,19 @@ export const pickerItem: CSSProperties = {
   scrollSnapAlign: "center",
   color: "#222",
   cursor: "pointer",
+  /* transform-origin is the row's own center line, which keeps the
+   * rotation pivoting around the middle of each row. */
+  transformOrigin: "50% 50%",
+  /* The per-frame transforms write to the four custom props below. */
+  transform:
+    "rotateX(var(--rx, 0deg)) translateZ(var(--tz, 0px)) scale(var(--sc, 1))",
+  opacity: "var(--op, 1)",
+  fontWeight: 500,
+  /* Disable the CSS transition on transform — we set the transform on
+   * every animation frame, so transitions would lag one frame behind
+   * the user's finger. */
+  transition: "none",
+  willChange: "transform, opacity",
 };
 
 export const pickerHighlight: CSSProperties = {
@@ -36,12 +60,13 @@ export const pickerHighlight: CSSProperties = {
   top: "50%",
   left: 0,
   right: 0,
-  height: 40,
-  marginTop: -20,
-  borderTop: "1px solid #999",
-  borderBottom: "1px solid #999",
+  height: ITEM_HEIGHT,
+  marginTop: -ITEM_HEIGHT / 2,
+  borderTop: "1px solid #b0b0b0",
+  borderBottom: "1px solid #b0b0b0",
   background: "rgba(0,0,0,0.04)",
   pointerEvents: "none",
+  zIndex: 2,
 };
 
 export const pickerFadeTop: CSSProperties = {
@@ -52,6 +77,7 @@ export const pickerFadeTop: CSSProperties = {
   height: 60,
   background: "linear-gradient(to bottom, #fafafa, transparent)",
   pointerEvents: "none",
+  zIndex: 3,
 };
 
 export const pickerFadeBottom: CSSProperties = {
@@ -62,6 +88,7 @@ export const pickerFadeBottom: CSSProperties = {
   height: 60,
   background: "linear-gradient(to top, #fafafa, transparent)",
   pointerEvents: "none",
+  zIndex: 3,
 };
 
 export const tableStyle: CSSProperties = {
