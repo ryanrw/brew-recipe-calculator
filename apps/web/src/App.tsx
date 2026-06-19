@@ -1,15 +1,23 @@
 import { useMemo, useState } from "react";
 import { Picker, RecipeTable, Toggle } from "@brew-recipe/ui";
 import { calculateRecipe, type RecipeInput } from "@brew-recipe/calculator";
+import {
+  DEFAULT_BLOOM_GRAMS,
+  DEFAULT_BLOOM_TIME_SEC,
+  DEFAULT_COFFEE_GRAMS,
+  DEFAULT_NUM_POURS,
+  DEFAULT_RATIO,
+  DEFAULT_TOTAL_TIME_SEC,
+} from "./defaults";
 
 export function App() {
-  const [coffeeGrams, setCoffeeGrams] = useState(15);
-  const [ratio, setRatio] = useState(17.5);
-  const [bloomGrams, setBloomGrams] = useState(30);
-  const [numPours, setNumPours] = useState(4);
+  const [coffeeGrams, setCoffeeGrams] = useState(DEFAULT_COFFEE_GRAMS);
+  const [ratio, setRatio] = useState(DEFAULT_RATIO);
+  const [bloomGrams, setBloomGrams] = useState(DEFAULT_BLOOM_GRAMS);
+  const [numPours, setNumPours] = useState(DEFAULT_NUM_POURS);
   const [useTiming, setUseTiming] = useState(false);
-  const [bloomTimeSec, setBloomTimeSec] = useState(45);
-  const [totalTimeSec, setTotalTimeSec] = useState(180);
+  const [bloomTimeSec, setBloomTimeSec] = useState(DEFAULT_BLOOM_TIME_SEC);
+  const [totalTimeSec, setTotalTimeSec] = useState(DEFAULT_TOTAL_TIME_SEC);
 
   const input: RecipeInput = useMemo(
     () => ({
