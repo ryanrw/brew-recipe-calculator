@@ -23,9 +23,12 @@ export interface RecipeInput {
 
 export interface Recipe {
   totalWater: number;
+  /** totalWater - bloomGrams, clamped to >= 0. */
   remainingWater: number;
+  /** remainingWater / numPours, or 0 if numPours <= 0 or remainingWater is 0. */
   perPour: number;
   bloom: PourStep;
+  /** Empty when numPours <= 0. */
   pours: PourStep[];
   /** Seconds between bloom end and final pour end, or null. */
   perPourTimeSec: number | null;
@@ -39,15 +42,18 @@ export function calculateRecipe(input: RecipeInput): Recipe {
   const { coffeeGrams, ratio, bloomGrams, numPours } = input;
 
   const totalWater = round2(coffeeGrams * ratio);
-  const remainingWater = round2(totalWater - bloomGrams);
-  const perPour = round2(remainingWater / numPours);
+  // Clamp remainingWater at 0 so over-blooming (bloom >= total) doesn't produce
+  // negative per-pour amounts that would render as "-15 g" in the UI.
+  const remainingWater = round2(Math.max(0, totalWater - bloomGrams));
+  const perPour = numPours > 0 ? round2(remainingWater / numPours) : 0;
 
   const hasTiming =
     input.bloomTimeSec !== undefined && input.totalTimeSec !== undefined;
 
-  const perPourTimeSec = hasTiming
-    ? round2((input.totalTimeSec! - input.bloomTimeSec!) / numPours)
-    : null;
+  const perPourTimeSec =
+    hasTiming && numPours > 0
+      ? round2((input.totalTimeSec! - input.bloomTimeSec!) / numPours)
+      : null;
 
   const bloom: PourStep = {
     index: 0,
@@ -56,18 +62,21 @@ export function calculateRecipe(input: RecipeInput): Recipe {
     cumulativeTimeSec: hasTiming ? round2(input.bloomTimeSec!) : null,
   };
 
-  const pours: PourStep[] = Array.from({ length: numPours }, (_, i) => {
-    const n = i + 1;
-    return {
-      index: n,
-      deltaGrams: perPour,
-      cumulativeGrams: round2(bloomGrams + n * perPour),
-      cumulativeTimeSec:
-        hasTiming && perPourTimeSec !== null
-          ? round2(input.bloomTimeSec! + n * perPourTimeSec)
-          : null,
-    };
-  });
+  const pours: PourStep[] =
+    numPours > 0
+      ? Array.from({ length: numPours }, (_, i) => {
+          const n = i + 1;
+          return {
+            index: n,
+            deltaGrams: perPour,
+            cumulativeGrams: round2(bloomGrams + n * perPour),
+            cumulativeTimeSec:
+              hasTiming && perPourTimeSec !== null
+                ? round2(input.bloomTimeSec! + n * perPourTimeSec)
+                : null,
+          };
+        })
+      : [];
 
   return {
     totalWater,
