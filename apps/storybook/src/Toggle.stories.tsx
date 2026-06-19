@@ -10,7 +10,7 @@ export default {
   },
   decorators: [
     (Story) => (
-      <div style={{ padding: 24, background: "#f6f3ee" }}>
+      <div style={{ padding: 24, background: "#0f172a", color: "#e2e8f0" }}>
         <Story />
       </div>
     ),

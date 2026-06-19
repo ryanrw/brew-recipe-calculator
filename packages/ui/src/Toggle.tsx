@@ -33,7 +33,7 @@ export function Toggle({ checked, onChange, label, id }: ToggleProps) {
         }}
         style={{
           ...toggleTrack,
-          background: checked ? "#4f8a4f" : "#ccc",
+          background: checked ? "#38bdf8" : toggleTrack.background,
         }}
       >
         <span

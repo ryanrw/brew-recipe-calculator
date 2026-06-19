@@ -5,7 +5,7 @@ export default {
   component: RecipeTable,
   decorators: [
     (Story) => (
-      <div style={{ padding: 16, maxWidth: 520, background: "#f6f3ee" }}>
+      <div style={{ padding: 16, maxWidth: 520, background: "#0f172a" }}>
         <Story />
       </div>
     ),

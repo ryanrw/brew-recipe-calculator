@@ -1,11 +1,15 @@
+/* Cool night theme — deep navy base, slate surfaces, cyan accent. */
+
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; }
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
     Arial, sans-serif;
-  background: #f6f3ee;
-  color: #1f1f1f;
+  background: #0f172a;
+  color: #e2e8f0;
+  /* Smoother anti-aliasing on dark backgrounds. */
+  -webkit-font-smoothing: antialiased;
 }
 .app {
   max-width: 720px;
@@ -15,17 +19,20 @@ body {
 h1 {
   margin: 0 0 4px;
   font-size: 24px;
+  color: #f1f5f9;
 }
 .subtitle {
   margin: 0 0 24px;
-  color: #666;
+  color: #94a3b8;
   font-size: 14px;
 }
 .card {
-  background: #fff;
+  background: #1e293b;
+  border: 1px solid #334155;
   border-radius: 14px;
   padding: 20px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.05);
+  /* Slight glow instead of shadow — shadows on dark are heavy-handed. */
+  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.04);
   margin-bottom: 16px;
 }
 .field {
@@ -36,45 +43,57 @@ h1 {
 }
 .field label {
   font-size: 13px;
-  color: #555;
+  color: #94a3b8;
   font-weight: 500;
 }
 .field input[type="number"] {
   font-size: 16px;
   padding: 8px 10px;
-  border: 1px solid #d0d0d0;
+  border: 1px solid #334155;
   border-radius: 8px;
   width: 140px;
-  background: #fafafa;
+  background: #0f172a;
+  color: #e2e8f0;
   font-variant-numeric: tabular-nums;
+}
+.field input[type="number"]:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
 }
 .input-with-unit {
   display: inline-flex;
   align-items: stretch;
-  border: 1px solid #d0d0d0;
+  border: 1px solid #334155;
   border-radius: 8px;
   overflow: hidden;
-  background: #fafafa;
+  background: #0f172a;
   width: fit-content;
+}
+.input-with-unit:focus-within {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
 }
 .input-with-unit input[type="number"] {
   border: 0;
   border-radius: 0;
   background: transparent;
+  color: #e2e8f0;
   width: 110px;
 }
 .input-with-unit input[type="number"]:focus {
   outline: none;
-  background: #fff;
+  background: transparent;
+  box-shadow: none;
 }
 .input-with-unit .unit {
   display: flex;
   align-items: center;
   padding: 0 10px;
   font-size: 13px;
-  color: #666;
-  background: #f0f0f0;
-  border-left: 1px solid #d0d0d0;
+  color: #94a3b8;
+  background: #283449;
+  border-left: 1px solid #334155;
 }
 .row {
   display: grid;
@@ -88,7 +107,8 @@ h1 {
   margin-bottom: 12px;
 }
 .summary div {
-  background: #f6f3ee;
+  background: #283449;
+  border: 1px solid #334155;
   border-radius: 10px;
   padding: 10px;
   text-align: center;
@@ -96,11 +116,12 @@ h1 {
 .summary span {
   display: block;
   font-size: 12px;
-  color: #777;
+  color: #94a3b8;
 }
 .summary strong {
   font-size: 18px;
   font-variant-numeric: tabular-nums;
+  color: #f1f5f9;
 }
 @media (max-width: 520px) {
   .row { grid-template-columns: 1fr; }
