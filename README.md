@@ -12,7 +12,9 @@ A pourover coffee calculator (React + Vite + Turborepo + TypeScript). See [`.cla
 ## Prerequisites
 
 - Node 20+ (`node --version`)
-- pnpm 9+ (`pnpm --version`)
+- pnpm 9.15+ (`pnpm --version`) — enable with `corepack enable` if needed
+
+> The repo's root `package.json` pins `pnpm@9.15.4`. To upgrade from an older pnpm: `corepack prepare pnpm@9.15.4 --activate` or `npm i -g pnpm@9.15.4`.
 
 ## Install
 
