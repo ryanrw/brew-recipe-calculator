@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { RecipeTable, Toggle } from "@brew-recipe/ui";
 import { calculateRecipe, type RecipeInput } from "@brew-recipe/calculator";
+import { formatMMSS } from "./format";
 import {
   DEFAULT_BLOOM_GRAMS,
   DEFAULT_BLOOM_TIME_SEC,
@@ -153,6 +154,7 @@ export function App() {
                 />
                 <span className="unit">s</span>
               </div>
+              <span className="input-hint">{formatMMSS(totalTimeSec)}</span>
             </div>
           </div>
         )}
