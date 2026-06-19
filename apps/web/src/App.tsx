@@ -12,21 +12,32 @@ import {
 } from "./defaults";
 
 export function App() {
-  const [coffeeGrams, setCoffeeGrams] = useState(DEFAULT_COFFEE_GRAMS);
-  const [ratio, setRatio] = useState(DEFAULT_RATIO);
-  const [bloomGrams, setBloomGrams] = useState(DEFAULT_BLOOM_GRAMS);
-  const [numPours, setNumPours] = useState(DEFAULT_NUM_POURS);
+  // Inputs are kept as strings so the user can clear a field (e.g. backspace
+  // to empty) without React forcing it back to "0" via Number("") === 0.
+  // The numeric values for the calculator are derived in the useMemo below.
+  const [coffeeGrams, setCoffeeGrams] = useState(String(DEFAULT_COFFEE_GRAMS));
+  const [ratio, setRatio] = useState(String(DEFAULT_RATIO));
+  const [bloomGrams, setBloomGrams] = useState(String(DEFAULT_BLOOM_GRAMS));
+  const [numPours, setNumPours] = useState(String(DEFAULT_NUM_POURS));
   const [useTiming, setUseTiming] = useState(false);
-  const [bloomTimeSec, setBloomTimeSec] = useState(DEFAULT_BLOOM_TIME_SEC);
-  const [totalTimeSec, setTotalTimeSec] = useState(DEFAULT_TOTAL_TIME_SEC);
+  const [bloomTimeSec, setBloomTimeSec] = useState(String(DEFAULT_BLOOM_TIME_SEC));
+  const [totalTimeSec, setTotalTimeSec] = useState(String(DEFAULT_TOTAL_TIME_SEC));
 
+  // Coerce each string to a number, falling back to the default if the user
+  // has cleared the field. Done inside useMemo so the calculator only
+  // recomputes when the parsed values actually change.
   const input: RecipeInput = useMemo(
     () => ({
-      coffeeGrams,
-      ratio,
-      bloomGrams,
-      numPours,
-      ...(useTiming ? { bloomTimeSec, totalTimeSec } : {}),
+      coffeeGrams: parseFloat(coffeeGrams) || DEFAULT_COFFEE_GRAMS,
+      ratio: parseFloat(ratio) || DEFAULT_RATIO,
+      bloomGrams: parseFloat(bloomGrams) || DEFAULT_BLOOM_GRAMS,
+      numPours: parseInt(numPours, 10) || DEFAULT_NUM_POURS,
+      ...(useTiming
+        ? {
+            bloomTimeSec: parseFloat(bloomTimeSec) || DEFAULT_BLOOM_TIME_SEC,
+            totalTimeSec: parseFloat(totalTimeSec) || DEFAULT_TOTAL_TIME_SEC,
+          }
+        : {}),
     }),
     [
       coffeeGrams,
@@ -60,7 +71,7 @@ export function App() {
                 max={25}
                 step={1}
                 value={coffeeGrams}
-                onChange={(e) => setCoffeeGrams(Number(e.target.value))}
+                onChange={(e) => setCoffeeGrams(e.target.value)}
               />
               <span className="unit">g</span>
             </div>
@@ -75,7 +86,7 @@ export function App() {
                 max={20}
                 step={0.5}
                 value={ratio}
-                onChange={(e) => setRatio(Number(e.target.value))}
+                onChange={(e) => setRatio(e.target.value)}
               />
               <span className="unit">: 1</span>
             </div>
@@ -92,7 +103,7 @@ export function App() {
                 min={0}
                 step={1}
                 value={bloomGrams}
-                onChange={(e) => setBloomGrams(Number(e.target.value))}
+                onChange={(e) => setBloomGrams(e.target.value)}
               />
               <span className="unit">g</span>
             </div>
@@ -107,7 +118,7 @@ export function App() {
                 max={10}
                 step={1}
                 value={numPours}
-                onChange={(e) => setNumPours(Number(e.target.value))}
+                onChange={(e) => setNumPours(e.target.value)}
               />
               <span className="unit">pours</span>
             </div>
@@ -135,7 +146,7 @@ export function App() {
                   max={120}
                   step={5}
                   value={bloomTimeSec}
-                  onChange={(e) => setBloomTimeSec(Number(e.target.value))}
+                  onChange={(e) => setBloomTimeSec(e.target.value)}
                 />
                 <span className="unit">s</span>
               </div>
@@ -150,7 +161,7 @@ export function App() {
                   max={600}
                   step={5}
                   value={totalTimeSec}
-                  onChange={(e) => setTotalTimeSec(Number(e.target.value))}
+                  onChange={(e) => setTotalTimeSec(e.target.value)}
                 />
                 <span className="unit">s</span>
               </div>

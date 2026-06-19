@@ -27,4 +27,16 @@ describe("formatMMSS", () => {
     expect(formatMMSS(-1)).toBe("—");
     expect(formatMMSS(-150)).toBe("—");
   });
+
+  it("accepts string input (controlled inputs carry strings)", () => {
+    expect(formatMMSS("150")).toBe("2:30");
+    expect(formatMMSS("0")).toBe("0:00");
+    expect(formatMMSS("600")).toBe("10:00");
+  });
+
+  it("returns '—' for empty or non-numeric strings", () => {
+    expect(formatMMSS("")).toBe("—");
+    expect(formatMMSS("abc")).toBe("—");
+    expect(formatMMSS("-30")).toBe("—");
+  });
 });

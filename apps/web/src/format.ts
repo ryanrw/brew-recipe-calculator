@@ -1,11 +1,14 @@
 /**
  * Convert a number of seconds to a "m:ss" string for display alongside
- * the seconds-based time inputs. Returns "—" for non-finite or negative
- * values so the UI never shows "NaN" or "-1:30".
+ * the seconds-based time inputs. Returns "—" for non-finite, negative,
+ * empty, or non-numeric values so the UI never shows "NaN" or "-1:30".
+ * Accepts string or number for convenience (controlled inputs typically
+ * carry strings).
  */
-export function formatMMSS(totalSeconds: number): string {
-  if (!Number.isFinite(totalSeconds) || totalSeconds < 0) return "—";
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = Math.floor(totalSeconds % 60);
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+export function formatMMSS(value: number | string): string {
+  const seconds = typeof value === "string" ? parseFloat(value) : value;
+  if (!Number.isFinite(seconds) || seconds < 0) return "—";
+  const minutes = Math.floor(seconds / 60);
+  const remainder = Math.floor(seconds % 60);
+  return `${minutes}:${remainder.toString().padStart(2, "0")}`;
 }
