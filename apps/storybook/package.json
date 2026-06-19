@@ -1,0 +1,26 @@
+{
+  "name": "@brew-recipe/storybook",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "lint": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@brew-recipe/ui": "workspace:*",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@storybook/addon-essentials": "8.4.7",
+    "@storybook/react": "8.4.7",
+    "@storybook/react-vite": "8.4.7",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "storybook": "8.4.7",
+    "typescript": "5.6.3",
+    "vite": "5.4.11"
+  }
+}
