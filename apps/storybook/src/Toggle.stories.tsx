@@ -4,9 +4,31 @@ import { Toggle } from "@brew-recipe/ui";
 export default {
   title: "Components/Toggle",
   component: Toggle,
+  argTypes: {
+    checked: { control: { type: "boolean" } },
+    label: { control: { type: "text" } },
+  },
+  decorators: [
+    (Story) => (
+      <div style={{ padding: 24, background: "#f6f3ee" }}>
+        <Story />
+      </div>
+    ),
+  ],
 };
 
-export const Basic = () => {
-  const [on, setOn] = useState(false);
-  return <Toggle checked={on} onChange={setOn} label="Enable timing" />;
+export const Off = {
+  args: { checked: false, label: "Include advanced timing" },
+  render: (args) => {
+    const [on, setOn] = useState(args.checked);
+    return <Toggle {...args} checked={on} onChange={setOn} />;
+  },
+};
+
+export const On = {
+  args: { checked: true, label: "Include advanced timing" },
+  render: (args) => {
+    const [on, setOn] = useState(args.checked);
+    return <Toggle {...args} checked={on} onChange={setOn} />;
+  },
 };
