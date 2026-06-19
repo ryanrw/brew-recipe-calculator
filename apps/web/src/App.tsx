@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Picker, RecipeTable, Toggle } from "@brew-recipe/ui";
+import { RecipeTable, Toggle } from "@brew-recipe/ui";
 import { calculateRecipe, type RecipeInput } from "@brew-recipe/calculator";
 import {
   DEFAULT_BLOOM_GRAMS,
@@ -50,35 +50,66 @@ export function App() {
       <div className="card">
         <div className="row">
           <div className="field">
-            <label>Coffee (g)</label>
-            <Picker min={8} max={25} value={coffeeGrams} onChange={setCoffeeGrams} />
+            <label htmlFor="coffee-grams">Coffee (g)</label>
+            <div className="input-with-unit">
+              <input
+                id="coffee-grams"
+                type="number"
+                min={8}
+                max={25}
+                step={1}
+                value={coffeeGrams}
+                onChange={(e) => setCoffeeGrams(Number(e.target.value))}
+              />
+              <span className="unit">g</span>
+            </div>
           </div>
           <div className="field">
-            <label>Ratio (1 : y)</label>
-            <Picker
-              min={2}
-              max={20}
-              step={0.5}
-              value={ratio}
-              onChange={setRatio}
-              format={(v) => v.toFixed(1)}
-            />
+            <label htmlFor="ratio">Ratio (1 : y)</label>
+            <div className="input-with-unit">
+              <input
+                id="ratio"
+                type="number"
+                min={2}
+                max={20}
+                step={0.5}
+                value={ratio}
+                onChange={(e) => setRatio(Number(e.target.value))}
+              />
+              <span className="unit">: 1</span>
+            </div>
           </div>
         </div>
 
         <div className="row">
           <div className="field">
-            <label>Bloom (g)</label>
-            <input
-              type="number"
-              min={0}
-              value={bloomGrams}
-              onChange={(e) => setBloomGrams(Number(e.target.value))}
-            />
+            <label htmlFor="bloom-grams">Bloom (g)</label>
+            <div className="input-with-unit">
+              <input
+                id="bloom-grams"
+                type="number"
+                min={0}
+                step={1}
+                value={bloomGrams}
+                onChange={(e) => setBloomGrams(Number(e.target.value))}
+              />
+              <span className="unit">g</span>
+            </div>
           </div>
           <div className="field">
-            <label>Number of pours</label>
-            <Picker min={1} max={10} value={numPours} onChange={setNumPours} />
+            <label htmlFor="num-pours">Number of pours</label>
+            <div className="input-with-unit">
+              <input
+                id="num-pours"
+                type="number"
+                min={1}
+                max={10}
+                step={1}
+                value={numPours}
+                onChange={(e) => setNumPours(Number(e.target.value))}
+              />
+              <span className="unit">pours</span>
+            </div>
           </div>
         </div>
 
@@ -94,24 +125,34 @@ export function App() {
         {useTiming && (
           <div className="row">
             <div className="field">
-              <label>Bloom time (s)</label>
-              <Picker
-                min={5}
-                max={120}
-                step={5}
-                value={bloomTimeSec}
-                onChange={setBloomTimeSec}
-              />
+              <label htmlFor="bloom-time">Bloom time (s)</label>
+              <div className="input-with-unit">
+                <input
+                  id="bloom-time"
+                  type="number"
+                  min={5}
+                  max={120}
+                  step={5}
+                  value={bloomTimeSec}
+                  onChange={(e) => setBloomTimeSec(Number(e.target.value))}
+                />
+                <span className="unit">s</span>
+              </div>
             </div>
             <div className="field">
-              <label>Total brew time (s)</label>
-              <Picker
-                min={30}
-                max={600}
-                step={5}
-                value={totalTimeSec}
-                onChange={setTotalTimeSec}
-              />
+              <label htmlFor="total-time">Total brew time (s)</label>
+              <div className="input-with-unit">
+                <input
+                  id="total-time"
+                  type="number"
+                  min={30}
+                  max={600}
+                  step={5}
+                  value={totalTimeSec}
+                  onChange={(e) => setTotalTimeSec(Number(e.target.value))}
+                />
+                <span className="unit">s</span>
+              </div>
             </div>
           </div>
         )}

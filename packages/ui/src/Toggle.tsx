@@ -1,4 +1,4 @@
-import { toggleThumb, toggleTrack } from "./Picker.css";
+import { toggleThumb, toggleTrack } from "./index.css";
 
 export interface ToggleProps {
   checked: boolean;

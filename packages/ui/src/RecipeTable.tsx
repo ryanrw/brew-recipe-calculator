@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { tableStyle, tdStyle, thStyle } from "./Picker.css";
+import { tableStyle, tdStyle, thStyle } from "./index.css";
 
 export interface RecipeTableProps {
   columns: { key: string; label: string }[];

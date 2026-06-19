@@ -39,7 +39,7 @@ Do **not** run tests automatically. Provide the command line for the user to run
 - `apps/web` — Vite + React dashboard (the actual app).
 - `apps/storybook` — Storybook for `@brew-recipe/ui` components.
 - `packages/calculator` — Pure brew math (`calculateRecipe`), framework-free. Vitest tests live here.
-- `packages/ui` — React components (`Picker`, `Toggle`, `RecipeTable`) consumed by `apps/web` and `apps/storybook`.
+- `packages/ui` — React components (`Toggle`, `RecipeTable`) consumed by `apps/web` and `apps/storybook`.
 
 Packages are referenced via pnpm workspace protocol (`workspace:*`). All packages export their `src/index.ts` directly — no build step required for consumption in dev.
 

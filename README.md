@@ -7,7 +7,7 @@ A pourover coffee calculator (React + Vite + Turborepo + TypeScript). See [`.cla
 - `apps/web` — the dashboard
 - `apps/storybook` — component docs for `@brew-recipe/ui`
 - `packages/calculator` — pure brew math (Vitest)
-- `packages/ui` — `Picker`, `Toggle`, `RecipeTable` (Vitest)
+- `packages/ui` — `Toggle`, `RecipeTable`
 
 ## Prerequisites
 
@@ -58,13 +58,6 @@ Run a single test file:
 
 ```sh
 pnpm --filter @brew-recipe/calculator test -- recipe.test
-pnpm --filter @brew-recipe/ui test -- Picker.test
-```
-
-Watch mode (re-runs on file change):
-
-```sh
-pnpm --filter @brew-recipe/ui test:watch
 ```
 
 ## Lint
