@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0f172a"/>
+  <!-- Steam wisps -->
+  <path d="M192 112 C 184 144, 216 168, 192 200" stroke="#38bdf8" stroke-width="14" stroke-linecap="round" fill="none" opacity="0.85"/>
+  <path d="M256 96 C 248 128, 280 152, 256 184" stroke="#38bdf8" stroke-width="14" stroke-linecap="round" fill="none" opacity="0.85"/>
+  <path d="M320 112 C 312 144, 344 168, 320 200" stroke="#38bdf8" stroke-width="14" stroke-linecap="round" fill="none" opacity="0.85"/>
+  <!-- Cup body -->
+  <path d="M128 224 H 384 V 344 a 80 80 0 0 1 -80 80 H 208 a 80 80 0 0 1 -80 -80 Z" fill="#38bdf8"/>
+  <!-- Cup rim highlight -->
+  <rect x="128" y="224" width="256" height="20" fill="#7dd3fc"/>
+  <!-- Handle -->
+  <path d="M384 256 a 56 56 0 0 1 0 112" stroke="#38bdf8" stroke-width="28" fill="none" stroke-linecap="round"/>
+  <!-- Saucer -->
+  <rect x="104" y="424" width="304" height="20" rx="10" fill="#38bdf8" opacity="0.6"/>
+</svg>
