@@ -236,6 +236,11 @@ h1 {
   padding: 0 16px;
   display: flex;
   align-items: center;
+  /* Keep "36.25 g" on one line; let the cell overflow horizontally if
+     the column is squeezed rather than wrapping the unit onto a new line. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .cell-edit-trigger:hover { color: #F5E6D3; }
 .cell-edit-trigger:focus-visible {
@@ -256,6 +261,8 @@ h1 {
   outline: none;
   box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.35);
   padding: 0 14px; /* 16px cell padding - 2px for the border */
+  /* Same as the button: never wrap the value. */
+  white-space: nowrap;
 }
 .edited-tag {
   display: inline-block;
@@ -354,5 +361,20 @@ h1 {
     align-self: flex-start;
     padding: 8px 10px;
     margin: 0;
+  }
+
+  /* On narrow screens the table can run out of horizontal space. Make the
+     card itself a horizontal-scroll surface — supported browsers match
+     the descendant via :has() so the form card above stays unaffected.
+     The table keeps its natural intrinsic width; the card scrolls. */
+  .card:has(.recipe-table) {
+    overflow-x: auto;
+  }
+  /* Keep the table at its natural width so columns don't squeeze the
+     value+unit into a wrap. Without this the table is forced to 100%
+     of the card and columns shrink. */
+  .recipe-table {
+    width: max-content;
+    min-width: 100%;
   }
 }
