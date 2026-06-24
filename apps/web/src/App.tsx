@@ -1,6 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type KeyboardEvent } from "react";
 import { RecipeTable, Toggle } from "@brew-recipe/ui";
-import { calculateRecipe, type RecipeInput } from "@brew-recipe/calculator";
+import {
+  calculateRecipe,
+  redistributePours,
+  type PourStep,
+  type RecipeInput,
+} from "@brew-recipe/calculator";
 import { formatMMSS } from "./format";
 import {
   DEFAULT_BLOOM_GRAMS,
@@ -22,6 +27,28 @@ export function App() {
   const [useTiming, setUseTiming] = useState(false);
   const [bloomTimeSec, setBloomTimeSec] = useState(String(DEFAULT_BLOOM_TIME_SEC));
   const [totalTimeSec, setTotalTimeSec] = useState(String(DEFAULT_TOTAL_TIME_SEC));
+
+  // Per-pour edit state. `editingPour` is the 0-based pour index currently in
+  // edit mode, or null. `editDraft` is the in-flight value typed by the user.
+  // `editedDeltas` is a sparse map of pour index → user-confirmed delta; the
+  // UI reads it to render the "edited" pill and to drive redistribution.
+  const [editingPour, setEditingPour] = useState<number | null>(null);
+  const [editDraft, setEditDraft] = useState<string>("");
+  const [editedDeltas, setEditedDeltas] = useState<Record<number, number>>({});
+
+  // Prune edits whose pour index is now out of range (e.g. the user reduced
+  // the number of pours). We re-derive this on every render so the dep arrays
+  // of the useMemos below don't have to reach into editedDeltas keys.
+  const activeEditedDeltas = useMemo(() => {
+    const out: Record<number, number> = {};
+    for (const [k, v] of Object.entries(editedDeltas)) {
+      const i = Number(k);
+      if (Number.isInteger(i) && i >= 0) out[i] = v;
+    }
+    return out;
+  }, [editedDeltas]);
+
+  const hasEdits = Object.keys(activeEditedDeltas).length > 0;
 
   // Coerce each string to a number, falling back to the default if the user
   // has cleared the field. Done inside useMemo so the calculator only
@@ -50,9 +77,113 @@ export function App() {
     ],
   );
 
-  const recipe = useMemo(() => calculateRecipe(input), [input]);
+  const baseRecipe = useMemo(() => calculateRecipe(input), [input]);
+
+  /**
+   * The pours the table renders. When there are no edits this is just
+   * `baseRecipe.pours` — no extra computation. When the user has edited at
+   * least one pour, we feed the edited deltas (and the unedited ones from
+   * the base recipe) into `redistributePours` to get the new per-pour layout.
+   *
+   * `redistributePours` keeps the final cumulative on `totalWater` whenever
+   * any pour is unedited, so unedited rows absorb the inverse of the net
+   * edit. Timing follows the same uniform spacing as `calculateRecipe`.
+   */
+  const effectivePours = useMemo<PourStep[]>(() => {
+    if (!hasEdits) return baseRecipe.pours;
+    const pourDeltas = baseRecipe.pours.map(
+      (p, i) => activeEditedDeltas[i] ?? p.deltaGrams,
+    );
+    const editedIndices = Object.keys(activeEditedDeltas)
+      .map(Number)
+      .filter((i) => i < baseRecipe.pours.length);
+    const r = redistributePours(
+      {
+        bloomGrams: baseRecipe.bloom.deltaGrams,
+        totalWater: baseRecipe.totalWater,
+        numPours: baseRecipe.pours.length,
+        pourDeltas,
+        editedIndices,
+      },
+      useTiming
+        ? {
+            bloomTimeSec: input.bloomTimeSec ?? DEFAULT_BLOOM_TIME_SEC,
+            totalTimeSec: input.totalTimeSec ?? DEFAULT_TOTAL_TIME_SEC,
+          }
+        : undefined,
+    );
+    return r.pours.map((p) => ({
+      index: p.index,
+      deltaGrams: p.deltaGrams,
+      cumulativeGrams: p.cumulativeGrams,
+      cumulativeTimeSec: p.cumulativeTimeSec,
+    }));
+  }, [baseRecipe, activeEditedDeltas, hasEdits, useTiming, input.bloomTimeSec, input.totalTimeSec]);
+
+  const deviation = useMemo(() => {
+    if (!hasEdits) return 0;
+    const sumDeltas = effectivePours.reduce((s, p) => s + p.deltaGrams, 0);
+    return baseRecipe.totalWater - (baseRecipe.bloom.deltaGrams + sumDeltas);
+  }, [hasEdits, effectivePours, baseRecipe]);
+
+  /**
+   * Hand the host (web app) the per-cell className so the "Add" cells of pour
+   * rows get the editable affordance. Bloom is intentionally not editable —
+   * the spec says to keep it edited at the top of the form.
+   */
+  const getCellClassName = (rowKey: string, columnKey: string) =>
+    columnKey === "add" && rowKey !== "bloom"
+      ? "recipe-table__cell--editable"
+      : undefined;
+
+  /**
+   * Begin editing pour i. The input is pre-filled with the current effective
+   * delta so the user can see the starting value and either tweak or replace.
+   */
+  const beginEdit = (i: number, currentValue: number) => {
+    setEditingPour(i);
+    setEditDraft(String(currentValue));
+  };
+
+  /**
+   * Commit the in-flight draft. Empty string → 0g. Negative or non-numeric
+   * values fall back to 0 (the input also has `min={0}` so this is defense
+   * in depth). After committing, exit edit mode.
+   */
+  const commitEdit = (pourIndex: number) => {
+    const parsed = parseFloat(editDraft);
+    const value = Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+    setEditedDeltas((prev) => ({ ...prev, [pourIndex]: value }));
+    setEditingPour(null);
+  };
+
+  const cancelEdit = () => {
+    setEditingPour(null);
+  };
+
+  const handleEditKeyDown = (e: KeyboardEvent<HTMLInputElement>, pourIndex: number) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      commitEdit(pourIndex);
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      cancelEdit();
+    }
+  };
+
+  const resetEdits = () => {
+    setEditedDeltas({});
+    setEditingPour(null);
+  };
 
   const hasTiming = useTiming;
+  const showDeviation = hasEdits && Math.abs(deviation) > 0.005;
+  const deviationClass =
+    deviation > 0 ? "recipe-deviation--under" : "recipe-deviation--over";
+  const deviationText =
+    deviation > 0
+      ? `${Math.abs(deviation)}g under the ideal recipe`
+      : `${Math.abs(deviation)}g over the ideal recipe`;
 
   return (
     <div className="app">
@@ -175,17 +306,34 @@ export function App() {
         <div className="summary">
           <div>
             <span>Total water</span>
-            <strong>{recipe.totalWater} g</strong>
+            <strong>{baseRecipe.totalWater} g</strong>
           </div>
           <div>
             <span>Per pour</span>
-            <strong>{recipe.perPour} g</strong>
+            <strong>{baseRecipe.perPour} g</strong>
           </div>
           <div>
             <span>Pours</span>
-            <strong>{recipe.pours.length}</strong>
+            <strong>{baseRecipe.pours.length}</strong>
           </div>
         </div>
+
+        <div className="recipe-actions">
+          <span className="recipe-actions-hint">
+            {hasEdits
+              ? "Edited pours are marked below. Reset to restore the ideal recipe."
+              : 'Tap any "Add" cell to adjust a pour — the rest will recalculate.'}
+          </span>
+          {hasEdits && (
+            <button type="button" className="recipe-reset" onClick={resetEdits}>
+              Reset edits
+            </button>
+          )}
+        </div>
+
+        {showDeviation && (
+          <div className={`recipe-deviation ${deviationClass}`}>{deviationText}</div>
+        )}
 
         <RecipeTable
           columns={
@@ -207,23 +355,55 @@ export function App() {
               key: "bloom",
               cells: [
                 "Bloom",
-                `${recipe.bloom.deltaGrams} g`,
-                `${recipe.bloom.cumulativeGrams} g`,
-                recipe.bloom.cumulativeTimeSec !== null
-                  ? `${recipe.bloom.cumulativeTimeSec}s`
+                `${baseRecipe.bloom.deltaGrams} g`,
+                `${baseRecipe.bloom.cumulativeGrams} g`,
+                baseRecipe.bloom.cumulativeTimeSec !== null
+                  ? `${baseRecipe.bloom.cumulativeTimeSec}s`
                   : "—",
               ].slice(0, hasTiming ? 4 : 3),
             },
-            ...recipe.pours.map((p) => ({
-              key: `pour-${p.index}`,
-              cells: [
-                `Pour ${p.index}`,
-                `${p.deltaGrams} g`,
-                `${p.cumulativeGrams} g`,
-                p.cumulativeTimeSec !== null ? `${p.cumulativeTimeSec}s` : "—",
-              ].slice(0, hasTiming ? 4 : 3),
-            })),
+            ...effectivePours.map((p, i) => {
+              const isEditing = editingPour === i;
+              const isEdited = activeEditedDeltas[i] !== undefined;
+              const addCell = isEditing ? (
+                <input
+                  key={`p${i}-input`}
+                  type="number"
+                  inputMode="decimal"
+                  autoFocus
+                  className="cell-input"
+                  min={0}
+                  step={1}
+                  value={editDraft}
+                  onChange={(e) => setEditDraft(e.target.value)}
+                  onBlur={() => commitEdit(i)}
+                  onKeyDown={(e) => handleEditKeyDown(e, i)}
+                  aria-label={`Pour ${p.index} amount in grams`}
+                />
+              ) : (
+                <button
+                  key={`p${i}-btn`}
+                  type="button"
+                  className="cell-edit-trigger"
+                  onClick={() => beginEdit(i, p.deltaGrams)}
+                  aria-label={`Edit pour ${p.index} amount`}
+                >
+                  {p.deltaGrams} g
+                  {isEdited ? <span className="edited-tag">edited</span> : null}
+                </button>
+              );
+              return {
+                key: `pour-${p.index}`,
+                cells: [
+                  `Pour ${p.index}`,
+                  addCell,
+                  `${p.cumulativeGrams} g`,
+                  p.cumulativeTimeSec !== null ? `${p.cumulativeTimeSec}s` : "—",
+                ].slice(0, hasTiming ? 4 : 3),
+              };
+            }),
           ]}
+          getCellClassName={getCellClassName}
         />
       </div>
     </div>

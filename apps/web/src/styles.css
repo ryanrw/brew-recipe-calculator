@@ -208,6 +208,122 @@ h1 {
   border-bottom: 0;
 }
 
+/* Editable per-pour "Add" cells. The host app tags these via
+   RecipeTable's getCellClassName hook. The cell keeps its normal padding
+   so the row heights and text baseline match the bloom row above. The
+   absolutely-positioned button fills the cell so the entire row segment
+   is a click target without re-applying padding inside the button. */
+.recipe-table tbody td.recipe-table__cell--editable {
+  position: relative;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.recipe-table tbody td.recipe-table__cell--editable:hover {
+  background: rgba(194, 65, 12, 0.10);
+}
+.cell-edit-trigger {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  /* Pad the inner content to match the surrounding cells' text baseline. */
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+}
+.cell-edit-trigger:hover { color: #F5E6D3; }
+.cell-edit-trigger:focus-visible {
+  outline: 2px solid #C2410C;
+  outline-offset: -2px;
+}
+.cell-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #1C1917;
+  border: 2px solid #C2410C;
+  border-radius: 0;
+  color: #FAFAF9;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.35);
+  padding: 0 14px; /* 16px cell padding - 2px for the border */
+}
+.edited-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #C2410C;
+  background: rgba(194, 65, 12, 0.12);
+  border: 1px solid rgba(194, 65, 12, 0.35);
+  border-radius: 4px;
+  vertical-align: middle;
+}
+.recipe-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-bottom: 8px;
+  font-family: "Source Sans 3", system-ui, sans-serif;
+  font-size: 12px;
+  color: #A8A29E;
+}
+.recipe-actions-hint {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.5;
+}
+.recipe-reset {
+  flex: 0 0 auto;
+  background: transparent;
+  border: 0;
+  color: #C2410C;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 8px;
+  margin: -6px -8px; /* keep visual alignment with the hint baseline */
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.recipe-reset:hover { text-decoration: underline; }
+.recipe-reset:focus-visible {
+  outline: 2px solid #C2410C;
+  outline-offset: 2px;
+}
+.recipe-deviation {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: "Source Sans 3", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+}
+.recipe-deviation--under {
+  background: rgba(194, 65, 12, 0.10);
+  color: #FCA5A5;
+  border: 1px solid rgba(194, 65, 12, 0.35);
+}
+.recipe-deviation--over {
+  background: rgba(22, 163, 74, 0.10);
+  color: #4ADE80;
+  border: 1px solid rgba(22, 163, 74, 0.35);
+}
+
 @media (max-width: 520px) {
   .row { grid-template-columns: 1fr; }
   .summary { grid-template-columns: 1fr 1fr; }
@@ -222,5 +338,21 @@ h1 {
   .input-with-unit input[type="number"] {
     width: 100%;
     min-width: 0;
+  }
+
+  /* Recipe actions: hint takes full width, reset sits underneath on its
+     own row with a left-aligned touch target. */
+  .recipe-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .recipe-actions-hint {
+    text-align: left;
+  }
+  .recipe-reset {
+    align-self: flex-start;
+    padding: 8px 10px;
+    margin: 0;
   }
 }

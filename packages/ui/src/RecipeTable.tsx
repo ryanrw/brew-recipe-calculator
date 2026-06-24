@@ -5,9 +5,20 @@ export interface RecipeTableProps {
   columns: { key: string; label: string }[];
   rows: { key: string; cells: ReactNode[] }[];
   caption?: string;
+  /**
+   * Optional hook so the host app can attach a className to individual cells
+   * (e.g. tag the "Add" column as editable). Returning a string is appended to
+   * the cell's className; returning null/undefined leaves the className empty.
+   */
+  getCellClassName?: (rowKey: string, columnKey: string) => string | undefined;
 }
 
-export function RecipeTable({ columns, rows, caption }: RecipeTableProps) {
+export function RecipeTable({
+  columns,
+  rows,
+  caption,
+  getCellClassName,
+}: RecipeTableProps) {
   return (
     <table className="recipe-table" style={tableStyle}>
       {caption && (
@@ -27,11 +38,18 @@ export function RecipeTable({ columns, rows, caption }: RecipeTableProps) {
       <tbody>
         {rows.map((r) => (
           <tr key={r.key}>
-            {r.cells.map((cell, i) => (
-              <td key={columns[i].key} style={tdStyle}>
-                {cell}
-              </td>
-            ))}
+            {r.cells.map((cell, i) => {
+              const extra = getCellClassName?.(r.key, columns[i].key);
+              return (
+                <td
+                  key={columns[i].key}
+                  style={tdStyle}
+                  className={extra}
+                >
+                  {cell}
+                </td>
+              );
+            })}
           </tr>
         ))}
       </tbody>
