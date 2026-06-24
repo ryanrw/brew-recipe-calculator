@@ -1,11 +1,44 @@
 import { RecipeTable } from "@brew-recipe/ui";
 
+const tableCss = `
+  .recipe-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+    background: #292524;
+    border: 1px solid #3F3A36;
+    border-radius: 12px;
+    overflow: hidden;
+    font-family: "Source Sans 3", system-ui, sans-serif;
+  }
+  .recipe-table thead th {
+    text-align: left;
+    padding: 12px 16px;
+    background: #44403C;
+    border-bottom: 1px solid #3F3A36;
+    font-family: "Source Sans 3", system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #A8A29E;
+  }
+  .recipe-table tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #3F3A36;
+    font-size: 15px;
+    color: #FAFAF9;
+  }
+  .recipe-table tbody tr:last-child td { border-bottom: 0; }
+`;
+
 export default {
   title: "Components/RecipeTable",
   component: RecipeTable,
   decorators: [
     (Story) => (
-      <div style={{ padding: 16, maxWidth: 520, background: "#0f172a" }}>
+      <div style={{ padding: 16, maxWidth: 520, background: "#1C1917" }}>
+        <style>{tableCss}</style>
         <Story />
       </div>
     ),

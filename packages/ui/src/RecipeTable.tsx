@@ -9,7 +9,7 @@ export interface RecipeTableProps {
 
 export function RecipeTable({ columns, rows, caption }: RecipeTableProps) {
   return (
-    <table style={tableStyle}>
+    <table className="recipe-table" style={tableStyle}>
       {caption && (
         <caption style={{ captionSide: "top", paddingBottom: 8, fontSize: 13 }}>
           {caption}

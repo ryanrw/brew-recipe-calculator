@@ -14,9 +14,12 @@ export function Toggle({ checked, onChange, label, id }: ToggleProps) {
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: 8,
+        gap: 10,
         cursor: "pointer",
+        fontFamily: '"Source Sans 3", system-ui, sans-serif',
         fontSize: 14,
+        fontWeight: 600,
+        color: "#FAFAF9",
       }}
     >
       <span
@@ -33,13 +36,16 @@ export function Toggle({ checked, onChange, label, id }: ToggleProps) {
         }}
         style={{
           ...toggleTrack,
-          background: checked ? "#38bdf8" : toggleTrack.background,
+          background: checked ? "#F59E0B" : toggleTrack.background,
+          borderColor: checked ? "#F59E0B" : "#3F3A36",
+          boxShadow: checked ? "0 0 12px rgba(245, 158, 11, 0.45)" : "none",
         }}
       >
         <span
           style={{
             ...toggleThumb,
             left: checked ? 22 : 2,
+            background: checked ? "#1C1917" : "#A8A29E",
           }}
         />
       </span>
