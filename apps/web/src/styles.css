@@ -176,6 +176,7 @@ h1 {
 /* Recipe table — overrides the inline style helpers from @brew-recipe/ui. */
 .recipe-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   font-variant-numeric: tabular-nums;
   background: #292524;
@@ -204,6 +205,38 @@ h1 {
   font-weight: 400;
   color: #FAFAF9;
 }
+
+/* Column sizing: each column is a fixed percentage of the table's content
+   width so the layout is predictable on both narrow and wide viewports.
+   Step holds 25%; the remaining 75% is split evenly across the other
+   columns (37.5/37.5 with 3 columns, 25/25/25 with 4). The Step cell has a
+   min-width floor so "Pour 10" never gets clipped if the card is squeezed
+   tighter than the column's percentage. Add / Total / Time cells center
+   their text so numerics read as columns rather than ragged right edges. */
+.recipe-table thead th:nth-child(1),
+.recipe-table tbody td:nth-child(1) {
+  width: 25%;
+  min-width: 88px;
+  text-align: left;
+}
+.recipe-table thead th:nth-child(2),
+.recipe-table tbody td:nth-child(2),
+.recipe-table thead th:nth-child(3),
+.recipe-table tbody td:nth-child(3),
+.recipe-table thead th:nth-child(4),
+.recipe-table tbody td:nth-child(4) {
+  text-align: center;
+  width: 25%;
+}
+/* 3-column layout (no Time column): Step is 25%, Add + Total each take
+   37.5% so the numeric columns get more room. Triggered when the third
+   column is also the last — i.e. the 4th th/td does not exist. */
+.recipe-table thead th:nth-child(3):last-child,
+.recipe-table tbody td:nth-child(3):last-child,
+.recipe-table thead th:nth-child(2):last-child,
+.recipe-table tbody td:nth-child(2):last-child {
+  width: 37.5%;
+}
 .recipe-table tbody tr:last-child td {
   border-bottom: 0;
 }
@@ -227,7 +260,7 @@ h1 {
   inset: 0;
   background: transparent;
   border: 0;
-  text-align: left;
+  text-align: center;
   font: inherit;
   color: inherit;
   font-variant-numeric: tabular-nums;
@@ -236,6 +269,8 @@ h1 {
   padding: 0 16px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 8px;
   /* Keep "36.25 g" on one line; let the cell overflow horizontally if
      the column is squeezed rather than wrapping the unit onto a new line. */
   white-space: nowrap;
@@ -264,19 +299,24 @@ h1 {
   /* Same as the button: never wrap the value. */
   white-space: nowrap;
 }
-.edited-tag {
-  display: inline-block;
-  margin-left: 8px;
-  padding: 1px 6px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #C2410C;
-  background: rgba(194, 65, 12, 0.12);
-  border: 1px solid rgba(194, 65, 12, 0.35);
-  border-radius: 4px;
-  vertical-align: middle;
+/* Rows the user has explicitly edited get a terracotta tint and accent
+   border so the row reads as "this one was changed" at a glance. The fill
+   matches the old "edited" pill color (rgba(194, 65, 12, 0.10)) so the
+   visual cue is consistent before and after this change. */
+.recipe-table tbody tr.recipe-table__row--edited td {
+  background: rgba(194, 65, 12, 0.10);
+}
+/* Accent border on the left and right edges. We add the border on the
+   first/last cell (not the row) so the table's rounded corners aren't
+   broken, and offset the cell padding by the border width to keep the
+   text alignment identical to un-edited rows. */
+.recipe-table tbody tr.recipe-table__row--edited td:first-child {
+  border-left: 3px solid #C2410C;
+  padding-left: 13px; /* 16px original - 3px border */
+}
+.recipe-table tbody tr.recipe-table__row--edited td:last-child {
+  border-right: 3px solid #C2410C;
+  padding-right: 13px;
 }
 .recipe-actions {
   display: flex;
@@ -366,14 +406,14 @@ h1 {
   /* On narrow screens the table can run out of horizontal space. Make the
      card itself a horizontal-scroll surface — supported browsers match
      the descendant via :has() so the form card above stays unaffected.
-     The table keeps its natural intrinsic width; the card scrolls. */
+     Drop fixed-layout so columns grow to fit their content (e.g. the
+     "158.75 g" Total cell); the card scrolls horizontally. */
   .card:has(.recipe-table) {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
-  /* Keep the table at its natural width so columns don't squeeze the
-     value+unit into a wrap. Without this the table is forced to 100%
-     of the card and columns shrink. */
   .recipe-table {
+    table-layout: auto;
     width: max-content;
     min-width: 100%;
   }

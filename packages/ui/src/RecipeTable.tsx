@@ -11,6 +11,13 @@ export interface RecipeTableProps {
    * the cell's className; returning null/undefined leaves the className empty.
    */
   getCellClassName?: (rowKey: string, columnKey: string) => string | undefined;
+  /**
+   * Optional hook so the host app can attach a className to the row's <tr>
+   * (e.g. tag a row as "edited" so the whole row can be highlighted). Same
+   * shape as getCellClassName; returning null/undefined leaves the row
+   * unclassed.
+   */
+  getRowClassName?: (rowKey: string) => string | undefined;
 }
 
 export function RecipeTable({
@@ -18,6 +25,7 @@ export function RecipeTable({
   rows,
   caption,
   getCellClassName,
+  getRowClassName,
 }: RecipeTableProps) {
   return (
     <table className="recipe-table" style={tableStyle}>
@@ -36,22 +44,25 @@ export function RecipeTable({
         </tr>
       </thead>
       <tbody>
-        {rows.map((r) => (
-          <tr key={r.key}>
-            {r.cells.map((cell, i) => {
-              const extra = getCellClassName?.(r.key, columns[i].key);
-              return (
-                <td
-                  key={columns[i].key}
-                  style={tdStyle}
-                  className={extra}
-                >
-                  {cell}
-                </td>
-              );
-            })}
-          </tr>
-        ))}
+        {rows.map((r) => {
+          const rowClass = getRowClassName?.(r.key);
+          return (
+            <tr key={r.key} className={rowClass}>
+              {r.cells.map((cell, i) => {
+                const extra = getCellClassName?.(r.key, columns[i].key);
+                return (
+                  <td
+                    key={columns[i].key}
+                    style={tdStyle}
+                    className={extra}
+                  >
+                    {cell}
+                  </td>
+                );
+              })}
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );

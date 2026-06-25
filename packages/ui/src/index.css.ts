@@ -13,7 +13,6 @@ export const tableStyle: CSSProperties = {
 };
 
 export const thStyle: CSSProperties = {
-  textAlign: "left",
   padding: "12px 16px",
 };
 

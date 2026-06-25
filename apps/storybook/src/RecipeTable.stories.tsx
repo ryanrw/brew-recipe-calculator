@@ -45,7 +45,7 @@ const tableCss = `
     inset: 0;
     background: transparent;
     border: 0;
-    text-align: left;
+    text-align: center;
     font: inherit;
     color: inherit;
     font-variant-numeric: tabular-nums;
@@ -53,25 +53,28 @@ const tableCss = `
     padding: 0 16px;
     display: flex;
     align-items: center;
+    justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
   }
   .cell-edit-trigger:hover { color: #F5E6D3; }
   .cell-edit-trigger:focus-visible {
     outline: 2px solid #C2410C;
     outline-offset: -2px;
   }
-  .edited-tag {
-    display: inline-block;
-    margin-left: 8px;
-    padding: 1px 6px;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #C2410C;
-    background: rgba(194, 65, 12, 0.12);
-    border: 1px solid rgba(194, 65, 12, 0.35);
-    border-radius: 4px;
-    vertical-align: middle;
+  /* Edited-row highlight: terracotta tint + accent border, mirrors
+     apps/web/src/styles.css. The host app supplies the className via
+     RecipeTable's getRowClassName hook. */
+  .recipe-table tbody tr.recipe-table__row--edited td {
+    background: rgba(194, 65, 12, 0.10);
+  }
+  .recipe-table tbody tr.recipe-table__row--edited td:first-child {
+    border-left: 3px solid #C2410C;
+    padding-left: 13px;
+  }
+  .recipe-table tbody tr.recipe-table__row--edited td:last-child {
+    border-right: 3px solid #C2410C;
+    padding-right: 13px;
   }
 `;
 
@@ -94,7 +97,7 @@ export const Default = {
       columns={[
         { key: "step", label: "Step" },
         { key: "add", label: "Add" },
-        { key: "scale", label: "Scale reads" },
+        { key: "scale", label: "Total" },
       ]}
       rows={[
         { key: "b", cells: ["Bloom", "30 g", "30 g"] },
@@ -111,8 +114,8 @@ export const WithTiming = {
       columns={[
         { key: "step", label: "Step" },
         { key: "add", label: "Add" },
-        { key: "scale", label: "Scale reads" },
-        { key: "time", label: "At time" },
+        { key: "scale", label: "Total" },
+        { key: "time", label: "Time (est.)" },
       ]}
       rows={[
         { key: "b", cells: ["Bloom", "30 g", "30 g", "45s"] },
@@ -124,10 +127,11 @@ export const WithTiming = {
 };
 
 /**
- * Previews the per-cell className hook used by the dashboard to mark pour
- * rows' "Add" cell as editable. Pour 1's "Add" cell is wrapped in a button
- * and carries the "edited" pill so designers can compare against the
- * un-edited baseline.
+ * Previews the per-cell + per-row className hooks used by the dashboard.
+ * The "Add" cells of pour rows are wrapped in a button (editable), and
+ * Pour 1's row carries `recipe-table__row--edited` so the whole row gets
+ * the terracotta tint and accent border. Pour 2 stays un-edited for
+ * comparison.
  */
 export const WithEditedCell = {
   render: () => (
@@ -135,7 +139,7 @@ export const WithEditedCell = {
       columns={[
         { key: "step", label: "Step" },
         { key: "add", label: "Add" },
-        { key: "scale", label: "Scale reads" },
+        { key: "scale", label: "Total" },
       ]}
       rows={[
         {
@@ -147,7 +151,7 @@ export const WithEditedCell = {
           cells: [
             "Pour 1",
             <button key="p1-add" type="button" className="cell-edit-trigger">
-              85 g<span className="edited-tag">edited</span>
+              85 g
             </button>,
             "115 g",
           ],
@@ -167,6 +171,9 @@ export const WithEditedCell = {
         columnKey === "add" && rowKey !== "bloom"
           ? "recipe-table__cell--editable"
           : undefined
+      }
+      getRowClassName={(rowKey) =>
+        rowKey === "pour-1" ? "recipe-table__row--edited" : undefined
       }
     />
   ),

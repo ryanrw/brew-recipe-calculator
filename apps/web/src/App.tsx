@@ -137,6 +137,22 @@ export function App() {
       : undefined;
 
   /**
+   * Tag any pour row whose delta was edited by the user so the row can be
+   * highlighted as a whole. Bloom rows and un-edited pour rows are left
+   * unclassed, and resetting edits clears the map → all rows revert to the
+   * default style. The host app supplies the CSS for the class.
+   */
+  const getRowClassName = (rowKey: string) => {
+    if (rowKey === "bloom") return undefined;
+    const m = /^pour-(\d+)$/.exec(rowKey);
+    if (!m) return undefined;
+    const pourIndex = Number(m[1]) - 1;
+    return activeEditedDeltas[pourIndex] !== undefined
+      ? "recipe-table__row--edited"
+      : undefined;
+  };
+
+  /**
    * Begin editing pour i. The input is pre-filled with the current effective
    * delta so the user can see the starting value and either tweak or replace.
    */
@@ -341,13 +357,13 @@ export function App() {
               ? [
                   { key: "step", label: "Step" },
                   { key: "add", label: "Add" },
-                  { key: "scale", label: "Scale reads" },
-                  { key: "time", label: "At time" },
+                  { key: "scale", label: "Total" },
+                  { key: "time", label: "Time (est.)" },
                 ]
               : [
                   { key: "step", label: "Step" },
                   { key: "add", label: "Add" },
-                  { key: "scale", label: "Scale reads" },
+                  { key: "scale", label: "Total" },
                 ]
           }
           rows={[
@@ -358,13 +374,12 @@ export function App() {
                 `${baseRecipe.bloom.deltaGrams} g`,
                 `${baseRecipe.bloom.cumulativeGrams} g`,
                 baseRecipe.bloom.cumulativeTimeSec !== null
-                  ? `${baseRecipe.bloom.cumulativeTimeSec}s`
+                  ? formatMMSS(baseRecipe.bloom.cumulativeTimeSec)
                   : "—",
               ].slice(0, hasTiming ? 4 : 3),
             },
             ...effectivePours.map((p, i) => {
               const isEditing = editingPour === i;
-              const isEdited = activeEditedDeltas[i] !== undefined;
               const addCell = isEditing ? (
                 <input
                   key={`p${i}-input`}
@@ -389,7 +404,6 @@ export function App() {
                   aria-label={`Edit pour ${p.index} amount`}
                 >
                   {p.deltaGrams} g
-                  {isEdited ? <span className="edited-tag">edited</span> : null}
                 </button>
               );
               return {
@@ -398,12 +412,13 @@ export function App() {
                   `Pour ${p.index}`,
                   addCell,
                   `${p.cumulativeGrams} g`,
-                  p.cumulativeTimeSec !== null ? `${p.cumulativeTimeSec}s` : "—",
+                  p.cumulativeTimeSec !== null ? formatMMSS(p.cumulativeTimeSec) : "—",
                 ].slice(0, hasTiming ? 4 : 3),
               };
             }),
           ]}
           getCellClassName={getCellClassName}
+          getRowClassName={getRowClassName}
         />
       </div>
     </div>
