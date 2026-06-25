@@ -293,6 +293,7 @@ h1 {
   color: #FAFAF9;
   font: inherit;
   font-variant-numeric: tabular-nums;
+  text-align: center;
   outline: none;
   box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.35);
   padding: 0 14px; /* 16px cell padding - 2px for the border */
