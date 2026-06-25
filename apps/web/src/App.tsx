@@ -83,14 +83,17 @@ export function App() {
    * The pours the table renders. When there are no edits this is just
    * `baseRecipe.pours` — no extra computation. When the user has edited at
    * least one pour, we feed the edited deltas (and the unedited ones from
-   * the base recipe) into `redistributePours` to get the new per-pour layout.
+   * the base recipe) into `redistributePours` to get the new per-pour layout
+   * and the deviation (the calculator rounds the deviation to 2dp).
    *
    * `redistributePours` keeps the final cumulative on `totalWater` whenever
    * any pour is unedited, so unedited rows absorb the inverse of the net
    * edit. Timing follows the same uniform spacing as `calculateRecipe`.
    */
-  const effectivePours = useMemo<PourStep[]>(() => {
-    if (!hasEdits) return baseRecipe.pours;
+  const { pours: effectivePours, deviation } = useMemo<
+    { pours: PourStep[]; deviation: number }
+  >(() => {
+    if (!hasEdits) return { pours: baseRecipe.pours, deviation: 0 };
     const pourDeltas = baseRecipe.pours.map(
       (p, i) => activeEditedDeltas[i] ?? p.deltaGrams,
     );
@@ -112,19 +115,16 @@ export function App() {
           }
         : undefined,
     );
-    return r.pours.map((p) => ({
-      index: p.index,
-      deltaGrams: p.deltaGrams,
-      cumulativeGrams: p.cumulativeGrams,
-      cumulativeTimeSec: p.cumulativeTimeSec,
-    }));
+    return {
+      pours: r.pours.map((p) => ({
+        index: p.index,
+        deltaGrams: p.deltaGrams,
+        cumulativeGrams: p.cumulativeGrams,
+        cumulativeTimeSec: p.cumulativeTimeSec,
+      })),
+      deviation: r.deviationGrams,
+    };
   }, [baseRecipe, activeEditedDeltas, hasEdits, useTiming, input.bloomTimeSec, input.totalTimeSec]);
-
-  const deviation = useMemo(() => {
-    if (!hasEdits) return 0;
-    const sumDeltas = effectivePours.reduce((s, p) => s + p.deltaGrams, 0);
-    return baseRecipe.totalWater - (baseRecipe.bloom.deltaGrams + sumDeltas);
-  }, [hasEdits, effectivePours, baseRecipe]);
 
   /**
    * Hand the host (web app) the per-cell className so the "Add" cells of pour
